@@ -92,3 +92,7 @@ object yaml extends MyModule {
   }
 }
 
+object app extends MyModule {
+  override def moduleDeps = Seq(yaml, hocon)
+}
+

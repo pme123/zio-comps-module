@@ -3,7 +3,6 @@ package pme123.zio.comps.hocon
 import pme123.zio.comps.core.Components.ComponentsEnv
 import pme123.zio.comps.core._
 import pureconfig.generic.auto._
-import pureconfig.generic.semiauto._
 import pureconfig.{ConfigReader, ConfigSource, ConfigWriter}
 import zio.console.Console
 import zio.{RIO, Task, ZIO, console}
@@ -11,8 +10,6 @@ import zio.{RIO, Task, ZIO, console}
 import scala.reflect.ClassTag
 
 trait HoconComps extends Components {
-
-  implicit val componentReader: ConfigReader[Component] = deriveReader[Component]
 
   def loadConf[T <: Component : ConfigReader : ClassTag](
                                                           ref: CompRef
@@ -36,9 +33,8 @@ trait HoconComps extends Components {
 
   val components: Components.Service[ComponentsEnv] = new Components.Service[ComponentsEnv] {
 
-    def load[T <: Component](ref: CompRef): RIO[ComponentsEnv, T] = {
+    def load[T <: Component](ref: CompRef): RIO[ComponentsEnv, T] =
       loadConf[Component](ref).map { case c: T => c }
-    }
 
     def render(component: Component): RIO[ComponentsEnv, String] =
       renderConf(component)
