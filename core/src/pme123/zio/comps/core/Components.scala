@@ -16,16 +16,16 @@ object Components {
   type ComponentsTask[A] = RIO[ComponentsEnv, A]
 
   trait Service[R <: ComponentsEnv] {
-    def load[T <: Component : ClassTag](ref: CompRef): RIO[R, T]
+    def load[T <: Component](ref: CompRef): RIO[R, T]
 
-    def render[T <: Component: ClassTag](component: T): RIO[R, String]
+    def render(component: Component): RIO[R, String]
   }
 
   object > extends Service[Components with ComponentsEnv] {
-    final def load[T <: Component : ClassTag](ref: CompRef): RIO[Components with ComponentsEnv, T] =
+    final def load[T <: Component](ref: CompRef): RIO[Components with ComponentsEnv, T] =
       ZIO.accessM(_.components.load(ref))
 
-    final def render[T <: Component : ClassTag](component: T): RIO[Components with ComponentsEnv, String] =
+    final def render(component: Component): RIO[Components with ComponentsEnv, String] =
       ZIO.accessM(_.components.render(component))
   }
 

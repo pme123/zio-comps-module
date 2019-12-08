@@ -1,27 +1,32 @@
 package pme123.zio.comps.yaml
 
-import io.circe.{Decoder, Encoder}
-import pme123.zio.comps.core.Components.ComponentsEnv
-import pme123.zio.comps.core.{Component, _}
-import zio.console.Console
-import zio.{RIO, Task, ZIO, console}
 import cats.syntax.functor._
 import io.circe.generic.auto._
 import io.circe.syntax._
 import io.circe.yaml.parser
 import io.circe.yaml.syntax._
-import io.circe.{Decoder, Encoder, Json, ParsingFailure}
+import io.circe.{Decoder, Json, ParsingFailure}
+import pme123.zio.comps.core.Components.ComponentsEnv
+import pme123.zio.comps.core.{Component, _}
+import zio.console.Console
+import zio.{RIO, Task, ZIO, console}
 
 import scala.io.Source
 import scala.reflect.ClassTag
 
 trait YamlComps extends Components {
 
-  implicit val sensitive: Decoder[Sensitive] =
+  implicit val componentDecoder: Decoder[Component] =
+    List[Decoder[Component]](
+      Decoder[DbConnection].widen,
+      Decoder[DbLookup].widen,
+      Decoder[MessageBundle].widen
+    ).reduceLeft(_ or _)
+
+  implicit val sensitiveDecoder: Decoder[Sensitive] =
     Decoder[String].map(Sensitive).widen
 
-
-  implicit val decodeCompRef: Decoder[CompRef] =
+  implicit val compRefDecoder: Decoder[CompRef] =
     List[Decoder[CompRef]](
       Decoder[LocalRef].widen,
       Decoder[RemoteRef].widen
@@ -38,9 +43,9 @@ trait YamlComps extends Components {
     } yield component
   }
 
-  def renderYaml[T <: Component : Encoder](
-                                            component: T
-                                          ): RIO[Console, String] =
+  def renderYaml(
+                  component: Component
+                ): RIO[Console, String] =
     for {
       json <- ZIO.effectTotal(component.asJson)
       configString <- ZIO.effectTotal(json.asYaml.spaces2)
@@ -51,19 +56,12 @@ trait YamlComps extends Components {
 
   val components: Components.Service[ComponentsEnv] = new Components.Service[ComponentsEnv] {
 
-    implicit val decodeComponent: Decoder[Component] =
-      List[Decoder[Component]](
-        Decoder[DbConnection].widen,
-        Decoder[DbLookup].widen,
-        Decoder[MessageBundle].widen
-      ).reduceLeft(_ or _)
-
-    def load[T <: Component](ref: CompRef)(implicit classTag: ClassTag[T]): RIO[ComponentsEnv, T] = {
-      ??? //loadYaml[T] (ref)
+    def load[T <: Component](ref: CompRef): RIO[ComponentsEnv, T] = {
+      loadYaml[Component](ref).map { case c: T => c }
     }
 
-    def render[T <: Component](component: T)(implicit classTag: ClassTag[T]): RIO[ComponentsEnv, String] =
-      ??? //    renderYaml[T](component)
+    def render(component: Component): RIO[ComponentsEnv, String] =
+      renderYaml(component)
   }
 }
 

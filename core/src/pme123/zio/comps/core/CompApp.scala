@@ -12,7 +12,7 @@ trait CompApp extends App {
     (for {
       dbLookup <- load[DbLookup](LocalRef(dbLookupName))
       dbConnection <- load[DbConnection](dbLookup.dbConRef)
-      messageBundle <- load(LocalRef(messageBundleName))
+      messageBundle <- load[MessageBundle](LocalRef(messageBundleName))
       _ <- render(dbLookup)
       _ <- render(dbConnection)
       _ <- render(messageBundle)

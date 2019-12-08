@@ -12,7 +12,7 @@ import scala.reflect.ClassTag
 
 trait HoconComps extends Components {
 
-
+  implicit val componentReader: ConfigReader[Component] = deriveReader[Component]
 
   def loadConf[T <: Component : ConfigReader : ClassTag](
                                                           ref: CompRef
@@ -23,11 +23,11 @@ trait HoconComps extends Components {
     } yield component
   }
 
-  def renderConf[T <: Component : ConfigWriter : ClassTag](
-                                                            component: T
-                                                          ): RIO[Console, String] =
+  def renderConf(
+                  component: Component
+                ): RIO[Console, String] =
     for {
-      configValue <- ZIO.effectTotal(ConfigWriter[T].to(component))
+      configValue <- ZIO.effectTotal(ConfigWriter[Component].to(component))
       configString <- ZIO.effectTotal(configValue.render())
       _ <- console.putStrLn(
         s"\nComponent File ${component.name}.conf :\n$configString"
@@ -35,16 +35,12 @@ trait HoconComps extends Components {
     } yield configString
 
   val components: Components.Service[ComponentsEnv] = new Components.Service[ComponentsEnv] {
-    implicit val componentReader: ConfigReader[Component] = deriveReader[Component]
 
-    def load[T <: Component: ClassTag](ref: CompRef): RIO[ComponentsEnv, T] =
-      {
-       ??? // loadConf[T]
-      } //loadConf[T] (ref)
+    def load[T <: Component](ref: CompRef): RIO[ComponentsEnv, T] = {
+      loadConf[Component](ref).map { case c: T => c }
+    }
 
-    def render[T <: Component: ClassTag](component: T): RIO[ComponentsEnv, String] =
-      ??? //renderConf[T](component)
+    def render(component: Component): RIO[ComponentsEnv, String] =
+      renderConf(component)
   }
 }
-
-object HoconComps extends HoconComps
