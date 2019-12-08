@@ -8,7 +8,6 @@ object YamlApp extends CompApp {
 
   def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] =
     program.provide(
-      new Console.Live with YamlComps {
-      }
+      new Console.Live with YamlComps {}
     )
 }

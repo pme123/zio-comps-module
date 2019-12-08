@@ -12,11 +12,9 @@ object MyApp extends CompApp {
     program.provide(
       args.headOption match {
         case Some("YAML") =>
-          new Console.Live with YamlComps {
-          }
+          new Console.Live with YamlComps {}
         case _ =>
-          new Console.Live with HoconComps {
-          }
+          new Console.Live with HoconComps {}
       }
     )
 }
