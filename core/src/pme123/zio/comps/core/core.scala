@@ -1,8 +1,6 @@
 package pme123.zio.comps
 
 package object core {
-  val dbLookupName = "postcodeLookup"
-  val messageBundleName = "messageBundle.en"
 
   case class Sensitive(value: String) extends AnyVal {
     override def toString: String = "*" * 20
@@ -34,7 +32,7 @@ package object core {
     def url: String
   }
   case class LocalRef(name: String) extends CompRef {
-    val url = name
+    val url: String = name
   }
   case class RemoteRef(name: String, pckg: String) extends CompRef {
     val url = s"dependencies/$pckg/$name"

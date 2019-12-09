@@ -1,18 +1,17 @@
 package pme123.zio.comps.yaml
 
 import cats.syntax.functor._
+import io.circe.Decoder
 import io.circe.generic.auto._
 import io.circe.syntax._
 import io.circe.yaml.parser
 import io.circe.yaml.syntax._
-import io.circe.{Decoder, Json, ParsingFailure}
 import pme123.zio.comps.core.Components.ComponentsEnv
 import pme123.zio.comps.core.{Component, _}
 import zio.console.Console
 import zio.{RIO, Task, ZIO, console}
 
 import scala.io.{Codec, Source}
-import scala.reflect.ClassTag
 
 trait YamlComps extends Components {
 

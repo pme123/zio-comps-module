@@ -6,6 +6,9 @@ import zio.{App, UIO, ZIO, console}
 
 trait CompApp extends App {
 
+  val dbLookupName = "postcodeLookup"
+  val messageBundleName = "messageBundle.en"
+
   type AppEnv = Components with ComponentsEnv
 
   def program: ZIO[AppEnv, Nothing, Int] =

@@ -4,8 +4,6 @@ import pme123.zio.comps.core.Components.ComponentsEnv
 import zio.console.Console
 import zio.{RIO, ZIO}
 
-import scala.reflect.ClassTag
-
 trait Components extends Serializable {
   val components: Components.Service[ComponentsEnv]
 }
