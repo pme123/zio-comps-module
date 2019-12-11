@@ -33,7 +33,7 @@ trait HoconComps extends Components {
 
   val components: Components.Service[ComponentsEnv] = new Components.Service[ComponentsEnv] {
 
-    def load[T <: Component](ref: CompRef): RIO[ComponentsEnv, T] =
+    def load[T <: Component: ClassTag](ref: CompRef): RIO[ComponentsEnv, T] =
       loadConf[Component](ref).map { case c: T => c }
 
     def render(component: Component): RIO[ComponentsEnv, String] =

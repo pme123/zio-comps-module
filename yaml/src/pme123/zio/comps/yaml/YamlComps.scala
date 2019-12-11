@@ -12,6 +12,7 @@ import zio.console.Console
 import zio.{RIO, Task, ZIO, console}
 
 import scala.io.{Codec, Source}
+import scala.reflect.ClassTag
 
 trait YamlComps extends Components {
 
@@ -55,7 +56,7 @@ trait YamlComps extends Components {
 
   val components: Components.Service[ComponentsEnv] = new Components.Service[ComponentsEnv] {
 
-    def load[T <: Component](ref: CompRef): RIO[ComponentsEnv, T] = {
+    def load[T <: Component: ClassTag](ref: CompRef): RIO[ComponentsEnv, T] = {
       loadYaml[Component](ref).map { case c: T => c }
     }
 
