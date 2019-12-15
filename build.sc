@@ -8,6 +8,7 @@ trait MyModule extends ScalaModule {
     val cats = "2.0.0"
     val circe = "0.12.1"
     val circeYaml = "0.12.0"
+    val macwire = "2.3.3"
     val pureconfig = "0.12.1"
     val zio = "1.0.0-RC16"
     val zioCats = "2.0.0.0-RC7"
@@ -18,6 +19,8 @@ trait MyModule extends ScalaModule {
     val circeCore = ivy"io.circe::circe-core:${version.circe}"
     val circeGeneric = ivy"io.circe::circe-generic:${version.circe}"
     val circeYaml = ivy"io.circe::circe-yaml:${version.circeYaml}"
+    val macwireUtil = ivy"com.softwaremill.macwire::util:${version.macwire}"
+    val macwireMacros = ivy"com.softwaremill.macwire::macros:${version.macwire}"
     val pureconfig =
       ivy"com.github.pureconfig::pureconfig:${version.pureconfig}"
     val zio = ivy"dev.zio::zio:${version.zio}"
@@ -94,5 +97,11 @@ object yaml extends MyModule {
 
 object app extends MyModule {
   override def moduleDeps = Seq(yaml, hocon)
+  override def ivyDeps = {
+    Agg(
+      libs.macwireUtil,
+      libs.macwireMacros
+    )
+  }
 }
 

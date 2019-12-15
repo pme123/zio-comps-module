@@ -9,9 +9,15 @@ import zio.{RIO, Task, ZIO, console}
 
 import scala.reflect.ClassTag
 
-trait HoconComps extends Components {
+class HoconComps extends Components.Service[ComponentsEnv] {
 
-  def loadConf[T <: Component : ConfigReader : ClassTag](
+  def load[T <: Component: ClassTag](ref: CompRef): RIO[ComponentsEnv, T] =
+    loadConf[Component](ref).map { case c: T => c }
+
+  def render(component: Component): RIO[ComponentsEnv, String] =
+    renderConf(component)
+
+  private def loadConf[T <: Component : ConfigReader : ClassTag](
                                                           ref: CompRef
                                                         ): RIO[Console, T] = {
     for {
@@ -20,7 +26,7 @@ trait HoconComps extends Components {
     } yield component
   }
 
-  def renderConf(
+  private def renderConf(
                   component: Component
                 ): RIO[Console, String] =
     for {
@@ -31,12 +37,4 @@ trait HoconComps extends Components {
       )
     } yield configString
 
-  val components: Components.Service[ComponentsEnv] = new Components.Service[ComponentsEnv] {
-
-    def load[T <: Component: ClassTag](ref: CompRef): RIO[ComponentsEnv, T] =
-      loadConf[Component](ref).map { case c: T => c }
-
-    def render(component: Component): RIO[ComponentsEnv, String] =
-      renderConf(component)
-  }
 }

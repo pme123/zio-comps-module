@@ -16,13 +16,27 @@ object Components {
   type ComponentsTask[A] = RIO[ComponentsEnv, A]
 
   trait Service[R <: ComponentsEnv] {
-    def load[T <: Component: ClassTag](ref: CompRef): RIO[R, T]
+    def load[T <: Component : ClassTag](ref: CompRef): RIO[R, T]
 
     def render(component: Component): RIO[R, String]
   }
 
+  trait Live extends Components {
+
+    def configService: Service[ComponentsEnv]
+
+    val components: Components.Service[ComponentsEnv] = new Components.Service[ComponentsEnv] {
+
+      def load[T <: Component : ClassTag](ref: CompRef): RIO[ComponentsEnv, T] =
+        configService.load[T](ref)
+
+      def render(component: Component): RIO[ComponentsEnv, String] =
+        configService.render(component)
+    }
+  }
+
   object > extends Service[Components with ComponentsEnv] {
-    final def load[T <: Component: ClassTag](ref: CompRef): RIO[Components with ComponentsEnv, T] =
+    final def load[T <: Component : ClassTag](ref: CompRef): RIO[Components with ComponentsEnv, T] =
       ZIO.accessM(_.components.load(ref))
 
     final def render(component: Component): RIO[Components with ComponentsEnv, String] =
