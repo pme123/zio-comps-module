@@ -10,7 +10,7 @@ object YamlApp extends CompApp {
   def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] =
     program.provide(
       new Console.Live with Components.Live {
-        def configService: Components.Service[ComponentsEnv] = new YamlComps
+        def compsService: Components.Service[ComponentsEnv] = new YamlComps
       }
     )
 }

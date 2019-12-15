@@ -23,15 +23,15 @@ object Components {
 
   trait Live extends Components {
 
-    def configService: Service[ComponentsEnv]
+    def compsService: Service[ComponentsEnv]
 
     val components: Components.Service[ComponentsEnv] = new Components.Service[ComponentsEnv] {
 
       def load[T <: Component : ClassTag](ref: CompRef): RIO[ComponentsEnv, T] =
-        configService.load[T](ref)
+        compsService.load[T](ref)
 
       def render(component: Component): RIO[ComponentsEnv, String] =
-        configService.render(component)
+        compsService.render(component)
     }
   }
 
