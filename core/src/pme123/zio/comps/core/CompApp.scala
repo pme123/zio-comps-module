@@ -6,21 +6,32 @@ import zio.{App, UIO, ZIO, console}
 
 trait CompApp extends App {
 
+  import CompApp._
+
+  def program: ZIO[AppEnv, Nothing, Int] =
+    flow
+      .map(_ => 0)
+      .catchAll { x =>
+        console.putStrLn(s"Exception: $x") *>
+          UIO.effectTotal(1)
+      }
+}
+
+object CompApp {
+
   val dbLookupName = "postcodeLookup"
   val messageBundleName = "messageBundle.en"
 
   type AppEnv = Components with ComponentsEnv
 
-  def program: ZIO[AppEnv, Nothing, Int] =
-    (for {
+  def flow: ZIO[AppEnv, Throwable, (DbLookup, DbConnection, MessageBundle)] = {
+    for {
       dbLookup <- load[DbLookup](LocalRef(dbLookupName))
       dbConnection <- load[DbConnection](dbLookup.dbConRef)
       messageBundle <- load[MessageBundle](LocalRef(messageBundleName))
       _ <- render(dbLookup)
       _ <- render(dbConnection)
       _ <- render(messageBundle)
-    } yield 0).catchAll { x =>
-      console.putStrLn(s"Exception: $x") *>
-        UIO.effectTotal(1)
-    }
+    } yield (dbLookup, dbConnection, messageBundle)
+  }
 }

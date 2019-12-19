@@ -27,20 +27,8 @@ trait MyModule extends ScalaModule {
     //  val zioMacrosMockable = ivy"dev.zio::zio-macros-mock:${version.zioMacros}"
     val zioStream = ivy"dev.zio::zio-streams:${version.zio}"
     val zioCats = ivy"dev.zio::zio-interop-cats:${version.zioCats}"
-  }
-
-  object test extends Tests {
-    override def ivyDeps = Agg(
-      ivy"dev.zio::zio-test:${version.zio}",
-      ivy"dev.zio::zio-test-sbt:${version.zio}"
-    )
-
-    def testOne(args: String*) = T.command {
-      super.runMain("org.scalatest.run", args: _*)
-    }
-
-    def testFrameworks =
-      Seq("zio.test.sbt.ZTestFramework")
+    val zioTest = ivy"dev.zio::zio-test:${version.zio}"
+    val zioTestSbt = ivy"dev.zio::zio-test-sbt:${version.zio}"
   }
 
   override def scalacOptions =
@@ -59,6 +47,24 @@ trait MyModule extends ScalaModule {
 
 }
 
+trait MyModuleWithTests extends MyModule {
+
+  object test extends Tests {
+    override def ivyDeps = Agg(
+      libs.zioTest,
+      libs.zioTestSbt
+    )
+
+    def testOne(args: String*) = T.command {
+      super.runMain("org.scalatest.run", args: _*)
+    }
+
+    def testFrameworks =
+      Seq("zio.test.sbt.ZTestFramework")
+  }
+
+}
+
 object core extends MyModule {
   override def ivyDeps = {
     Agg(
@@ -67,9 +73,20 @@ object core extends MyModule {
   }
 }
 
-object hocon extends MyModule {
-
+object tests extends MyModule {
   override def moduleDeps = Seq(core)
+
+  override def ivyDeps = {
+    Agg(
+      libs.zio,
+      libs.zioTest
+    )
+  }
+}
+
+object hocon extends MyModuleWithTests {
+
+  override def moduleDeps = Seq(core, tests)
 
   override def scalacOptions =
     defaultScalaOpts ++ Seq("-Ymacro-annotations", "-Ymacro-debug-lite")
@@ -81,8 +98,8 @@ object hocon extends MyModule {
   }
 }
 
-object yaml extends MyModule {
-  override def moduleDeps = Seq(core)
+object yaml extends MyModuleWithTests {
+  override def moduleDeps = Seq(core, tests)
 
   override def scalacOptions =
     defaultScalaOpts ++ Seq("-Ymacro-annotations", "-Ymacro-debug-lite")
@@ -97,6 +114,7 @@ object yaml extends MyModule {
 
 object app extends MyModule {
   override def moduleDeps = Seq(yaml, hocon)
+
   override def ivyDeps = {
     Agg(
       libs.macwireUtil,

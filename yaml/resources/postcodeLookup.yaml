@@ -1,7 +1,9 @@
-name: dbLookup
+name: postcodeLookup
 dbConRef:
-  name: dbConnection
-statement: SELECT f_plz FROM t_places
-             WHERE f_name == ?
+  name: odsDb
+statement: |
+
+  SELECT f_postcode FROM t_places
+      WHERE f_name == ?
 params:
   name: Schwändi

@@ -7,19 +7,21 @@ import pureconfig.{ConfigReader, ConfigSource, ConfigWriter}
 import zio.console.Console
 import zio.{RIO, Task, ZIO, console}
 
+import scala.concurrent.Future
 import scala.reflect.ClassTag
+import scala.util.Success
 
 class HoconComps extends Components.Service[ComponentsEnv] {
 
-  def load[T <: Component: ClassTag](ref: CompRef): RIO[ComponentsEnv, T] =
+  def load[T <: Component : ClassTag](ref: CompRef): RIO[ComponentsEnv, T] =
     loadConf[Component](ref).map { case c: T => c }
 
   def render(component: Component): RIO[ComponentsEnv, String] =
     renderConf(component)
 
   private def loadConf[T <: Component : ConfigReader : ClassTag](
-                                                          ref: CompRef
-                                                        ): RIO[Console, T] = {
+                                                                  ref: CompRef
+                                                                ): RIO[Console, T] = {
     for {
       component <- Task.effect(ConfigSource.resources(s"${ref.url}.conf").loadOrThrow[T])
       _ <- console.putStrLn(s"\nComponent:\n$component")
@@ -27,8 +29,8 @@ class HoconComps extends Components.Service[ComponentsEnv] {
   }
 
   private def renderConf(
-                  component: Component
-                ): RIO[Console, String] =
+                          component: Component
+                        ): RIO[Console, String] =
     for {
       configValue <- ZIO.effectTotal(ConfigWriter[Component].to(component))
       configString <- ZIO.effectTotal(configValue.render())
