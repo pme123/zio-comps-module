@@ -2,23 +2,54 @@ package pme123.zio.comps.core.test
 
 import pme123.zio.comps.core.CompApp._
 import pme123.zio.comps.core._
-import zio.test._
+import pme123.zio.comps.core.components.Components
 import zio.test.Assertion._
+import zio.test._
+import zio.test.environment.TestConsole
 
 object ComponentsTests {
 
   //noinspection TypeAnnotation
-  def testSuites(env: AppEnv) =
+  def testSuites(service: Components.Service) =
     suite("Run Program")(
       testM("the Configs are correct") {
         for {
-          r <- CompApp.flow.provide(env)
+          r <- CompApp.flow
           (lookup, conn, messageB) = r
-        } yield assert(lookup, equalTo(dbLookup)) &&
-          assert(conn, equalTo(dbConnection)) &&
-          assert(messageB, equalTo(messageBundle))
+          consoleData <- TestConsole.output
+          consoleOut = consoleData.filter(_.startsWith(renderOutputPrefix))
+        } yield
+          assert(consoleOut.length)( equalTo(3)) &&
+            testRenderLookup(lookup, consoleOut.head) &&
+            testDbConn(conn, consoleOut(1)) &&
+            testMessageBundle(messageB, consoleOut.last)
       }
-    )
+    ).provideCustomLayer(Components.live(service))
+
+  private def testRenderLookup(lookup: DbLookup, output: String) = {
+    assert(lookup)(equalTo(dbLookup)) &&
+      assert(output)(
+        containsString(dbLookup.name) &&
+          containsString(dbLookup.dbConRef.url)
+      )
+  }
+
+  private def testDbConn(conn: DbConnection, output: String) = {
+    assert(conn)(equalTo(dbConnection)) &&
+      assert(output)(
+        containsString(dbConnection.name) &&
+          containsString(dbConnection.url) &&
+          containsString(dbConnection.user) &&
+          containsString(dbConnection.password.value)
+      )
+  }
+
+  private def testMessageBundle(messageB: MessageBundle, output: String) = {
+    assert(messageB)(equalTo(messageBundle)) &&
+      assert(output)(
+        containsString(messageBundle.name)
+      )
+  }
 
   private val dbLookup = DbLookup(
     dbLookupName,

@@ -1,30 +1,26 @@
 package pme123.zio.comps.app
 
-import pme123.zio.comps.core.{CompApp, Components}
-import pureconfig.generic.auto._
+import com.softwaremill.macwire._
+import pme123.zio.comps.core.CompApp
+import pme123.zio.comps.core.components.Components
 import pureconfig.ConfigSource
+import pureconfig.generic.auto._
 import zio._
 import zio.console.Console
-import com.softwaremill.macwire._
-import pme123.zio.comps.core.Components.ComponentsEnv
-
-import scala.reflect.ClassTag
 
 object MyApp extends CompApp {
 
   def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] = {
     (for {
       myConfig <- config()
-      service <- wire[Components.Service[ComponentsEnv]](myConfig.compsImpl)
-      run <- program.provide(
-        new Console.Live with Components.Live {
-          def compsService: Components.Service[ComponentsEnv] = service
-        }
+      service <- wire[Components.Service](myConfig.compsImpl)
+      run <- program.provideLayer(
+        Console.live ++ Components.live(service)
       )
     } yield run)
       .catchAll { t =>
         console.putStrLn(s"Problem init Components Module.\n - $t")
-          .map(_ => 1)
+          .as(1)
       }
   }
 

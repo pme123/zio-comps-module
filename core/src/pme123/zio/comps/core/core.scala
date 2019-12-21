@@ -1,6 +1,7 @@
 package pme123.zio.comps
 
 package object core {
+  val renderOutputPrefix = "RENDER:"
 
   case class Sensitive(value: String) extends AnyVal {
     override def toString: String = "*" * 20

@@ -1,16 +1,13 @@
 package pme123.zio.comps.hocon
 
-import pme123.zio.comps.core.Components
-import pme123.zio.comps.core.Components.ComponentsEnv
 import pme123.zio.comps.core.test.ComponentsTests
-import zio.console.Console
-import zio.test.{DefaultRunnableSpec, suite}
+import zio.test._
 
 object HoconSuites
-  extends DefaultRunnableSpec(
+  extends DefaultRunnableSpec {
+
+  def spec: ZSpec[environment.TestEnvironment, Any] =
     suite("HoconSuites")(
-      ComponentsTests.testSuites(
-        new Console.Live with Components.Live {
-          def compsService: Components.Service[ComponentsEnv] = new HoconComps
-        })
-    ))
+      ComponentsTests.testSuites(new HoconComps)
+    )
+}

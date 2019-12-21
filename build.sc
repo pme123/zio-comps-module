@@ -1,3 +1,4 @@
+import coursier.maven.MavenRepository
 import mill._
 import mill.scalalib._
 
@@ -10,7 +11,7 @@ trait MyModule extends ScalaModule {
     val circeYaml = "0.12.0"
     val macwire = "2.3.3"
     val pureconfig = "0.12.1"
-    val zio = "1.0.0-RC16"
+    val zio = "1.0.0-RC17+458-ff62ee8f-SNAPSHOT"
     val zioCats = "2.0.0.0-RC7"
   }
 
@@ -44,7 +45,9 @@ trait MyModule extends ScalaModule {
     //  "-Ypartial-unification",      // Enable partial unification in type constructor inference
     //  "-Xfatal-warnings"            // Fail the compilation if there are any warnings
   )
-
+  override def repositories = super.repositories ++ Seq(
+    MavenRepository("https://oss.sonatype.org/content/repositories/snapshots")
+  )
 }
 
 trait MyModuleWithTests extends MyModule {

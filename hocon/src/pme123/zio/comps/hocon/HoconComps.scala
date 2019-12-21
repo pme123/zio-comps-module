@@ -1,7 +1,7 @@
 package pme123.zio.comps.hocon
 
-import pme123.zio.comps.core.Components.ComponentsEnv
 import pme123.zio.comps.core._
+import pme123.zio.comps.core.components.{Components, ComponentsEnv}
 import pureconfig.generic.auto._
 import pureconfig.{ConfigReader, ConfigSource, ConfigWriter}
 import zio.console.Console
@@ -9,7 +9,7 @@ import zio.{RIO, Task, ZIO, console}
 
 import scala.reflect.ClassTag
 
-class HoconComps extends Components.Service[ComponentsEnv] {
+class HoconComps extends Components.Service {
 
   def load[T <: Component : ClassTag](ref: CompRef): RIO[ComponentsEnv, T] =
     loadConf[Component](ref).map { case c: T => c }
@@ -32,9 +32,7 @@ class HoconComps extends Components.Service[ComponentsEnv] {
     for {
       configValue <- ZIO.effectTotal(ConfigWriter[Component].to(component))
       configString <- ZIO.effectTotal(configValue.render())
-      _ <- console.putStrLn(
-        s"\nComponent File ${component.name}.conf :\n$configString"
-      )
+      _ <- renderOutput(component, configString)
     } yield configString
 
 }
