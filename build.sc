@@ -50,6 +50,8 @@ trait MyModule extends ScalaModule {
 trait MyModuleWithTests extends MyModule {
 
   object test extends Tests {
+    override def moduleDeps =  super.moduleDeps :+ tests
+
     override def ivyDeps = Agg(
       libs.zioTest,
       libs.zioTestSbt
@@ -86,7 +88,7 @@ object tests extends MyModule {
 
 object hocon extends MyModuleWithTests {
 
-  override def moduleDeps = Seq(core, tests)
+  override def moduleDeps = Seq(core)
 
   override def scalacOptions =
     defaultScalaOpts ++ Seq("-Ymacro-annotations", "-Ymacro-debug-lite")
@@ -99,7 +101,7 @@ object hocon extends MyModuleWithTests {
 }
 
 object yaml extends MyModuleWithTests {
-  override def moduleDeps = Seq(core, tests)
+  override def moduleDeps = Seq(core)
 
   override def scalacOptions =
     defaultScalaOpts ++ Seq("-Ymacro-annotations", "-Ymacro-debug-lite")

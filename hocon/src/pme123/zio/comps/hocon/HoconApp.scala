@@ -1,6 +1,5 @@
 package pme123.zio.comps.hocon
 
-import pme123.zio.comps.core.CompApp.AppEnv
 import pme123.zio.comps.core.Components.ComponentsEnv
 import pme123.zio.comps.core._
 import zio.ZIO
@@ -8,14 +7,12 @@ import zio.console.Console
 
 object HoconApp extends CompApp {
 
-  lazy val environment: AppEnv = new Console.Live with Components.Live {
-    def compsService: Components.Service[ComponentsEnv] = new HoconComps
-  }
-
   def run(args: List[String]): ZIO[zio.ZEnv, Nothing, Int] = {
 
     program.provide(
-      environment
+      new Console.Live with Components.Live {
+        def compsService: Components.Service[ComponentsEnv] = new HoconComps
+      }
     )
   }
 }

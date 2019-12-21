@@ -7,9 +7,7 @@ import pureconfig.{ConfigReader, ConfigSource, ConfigWriter}
 import zio.console.Console
 import zio.{RIO, Task, ZIO, console}
 
-import scala.concurrent.Future
 import scala.reflect.ClassTag
-import scala.util.Success
 
 class HoconComps extends Components.Service[ComponentsEnv] {
 
