@@ -32,9 +32,7 @@ class HoconComps extends Components.Service[ComponentsEnv] {
     for {
       configValue <- ZIO.effectTotal(ConfigWriter[Component].to(component))
       configString <- ZIO.effectTotal(configValue.render())
-      _ <- console.putStrLn(
-        s"\nComponent File ${component.name}.conf :\n$configString"
-      )
+      _ <- renderOutput(component, configString)
     } yield configString
 
 }

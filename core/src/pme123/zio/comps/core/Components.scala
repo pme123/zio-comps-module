@@ -2,7 +2,7 @@ package pme123.zio.comps.core
 
 import pme123.zio.comps.core.Components.ComponentsEnv
 import zio.console.Console
-import zio.{RIO, ZIO}
+import zio.{RIO, ZIO, console}
 
 import scala.reflect.ClassTag
 
@@ -16,6 +16,12 @@ object Components {
   type ComponentsTask[A] = RIO[ComponentsEnv, A]
 
   trait Service[R <: ComponentsEnv] {
+
+    protected def renderOutput(comp: Component, output: String): ZIO[ComponentsEnv, Nothing, Unit] =
+      console.putStrLn(
+        s"$renderOutputPrefix ${comp.name}:\n$output"
+      )
+
     def load[T <: Component : ClassTag](ref: CompRef): RIO[R, T]
 
     def render(component: Component): RIO[R, String]
