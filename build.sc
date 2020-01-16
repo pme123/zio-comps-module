@@ -8,10 +8,12 @@ trait MyModule extends ScalaModule {
     val cats = "2.0.0"
     val circe = "0.12.1"
     val circeYaml = "0.12.0"
+    val diffx = "0.3.16-SNAPSHOT"
     val macwire = "2.3.3"
     val pureconfig = "0.12.1"
     val zio = "1.0.0-RC17"
     val zioCats = "2.0.0.0-RC7"
+    val zioConfig = "1.0.0-RC9"
   }
 
   object libs {
@@ -19,6 +21,7 @@ trait MyModule extends ScalaModule {
     val circeCore = ivy"io.circe::circe-core:${version.circe}"
     val circeGeneric = ivy"io.circe::circe-generic:${version.circe}"
     val circeYaml = ivy"io.circe::circe-yaml:${version.circeYaml}"
+    val diffx = ivy"com.softwaremill.diffx::diffx-ziotest:${version.diffx}"
     val macwireUtil = ivy"com.softwaremill.macwire::util:${version.macwire}"
     val macwireMacros = ivy"com.softwaremill.macwire::macros:${version.macwire}"
     val pureconfig =
@@ -27,6 +30,10 @@ trait MyModule extends ScalaModule {
     //  val zioMacrosMockable = ivy"dev.zio::zio-macros-mock:${version.zioMacros}"
     val zioStream = ivy"dev.zio::zio-streams:${version.zio}"
     val zioCats = ivy"dev.zio::zio-interop-cats:${version.zioCats}"
+    val zioConfig = ivy"dev.zio::zio-config:${version.zioConfig}"
+    val zioConfigMagnolia = ivy"dev.zio::zio-config-magnolia:${version.zioConfig}"
+    val zioConfigTypesafe = ivy"dev.zio::zio-config-typesafe:${version.zioConfig}"
+    val zioConfigRefined = ivy"dev.zio::zio-config-refined:${version.zioConfig}"
     val zioTest = ivy"dev.zio::zio-test:${version.zio}"
     val zioTestSbt = ivy"dev.zio::zio-test-sbt:${version.zio}"
   }
@@ -96,6 +103,20 @@ object hocon extends MyModuleWithTests {
   override def ivyDeps = {
     Agg(
       libs.pureconfig
+    )
+  }
+}
+
+object zioconfig extends MyModuleWithTests {
+
+  override def moduleDeps = Seq(core)
+
+  override def ivyDeps = {
+    Agg(
+      libs.zioConfig,
+      libs.zioConfigMagnolia,
+      libs.zioConfigRefined,
+      libs.zioConfigTypesafe
     )
   }
 }

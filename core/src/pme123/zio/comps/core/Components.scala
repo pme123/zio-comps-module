@@ -2,7 +2,7 @@ package pme123.zio.comps.core
 
 import pme123.zio.comps.core.Components.ComponentsEnv
 import zio.console.Console
-import zio.{RIO, ZIO, console}
+import zio.{Chunk, DefaultRuntime, RIO, ZIO, console}
 
 import scala.reflect.ClassTag
 
