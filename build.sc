@@ -11,7 +11,7 @@ trait MyModule extends ScalaModule {
     val circeYaml = "0.12.0"
     val macwire = "2.3.3"
     val pureconfig = "0.12.1"
-    val zio = "1.0.0-RC17+458-ff62ee8f-SNAPSHOT"
+    val zio = "1.0.0-RC18"
     val zioCats = "2.0.0.0-RC7"
   }
 
