@@ -1,52 +1,50 @@
 package pme123.zio.comps.core.test
 
 import pme123.zio.comps.core.CompApp._
-import pme123.zio.comps.core.Components.ComponentsEnv
 import pme123.zio.comps.core._
-import zio.Ref
+import pme123.zio.comps.core.components.Components
 import zio.test.Assertion._
 import zio.test._
 import zio.test.environment.TestConsole
-import zio.test.environment.TestConsole.Data
 
 object ComponentsTests {
 
-  def env(service: Components.Service[ComponentsEnv], data: Ref[TestConsole.Data]): AppEnv =
-    new TestConsole with Components.Live {
-      def compsService: Components.Service[ComponentsEnv] = service
 
-      val console: TestConsole.Service[Any] = TestConsole.Test(data)
-    }
+  def env(service: Components.Service) =
+
+   environment.testEnvironment ++  Components.live(service)
+
 
   //noinspection TypeAnnotation
-  def testSuites(service: Components.Service[ComponentsEnv]) =
+  def testSuites(service: Components.Service) =
     suite("Run Program")(
       testM("the Configs are correct") {
         for {
-          consoleData <- Ref.make[TestConsole.Data](Data())
-          r <- CompApp.flow.provide(env(service, consoleData))
+
+          r <- CompApp.flow
           (lookup, conn, messageB) = r
-          content <- consoleData.get
-          consoleOut = content.output.filter(_.startsWith(renderOutputPrefix))
+          consoleData <- TestConsole.output
+
+          consoleOut = consoleData.filter(_.startsWith(renderOutputPrefix))
         } yield
-          assert(consoleOut.length, equalTo(3)) &&
+          assert(consoleOut.length)( equalTo(3)) &&
             testRenderLookup(lookup, consoleOut.head) &&
             testDbConn(conn, consoleOut(1)) &&
             testMessageBundle(messageB, consoleOut.last)
       }
-    )
+    ).provideLayer(env(service))
 
   private def testRenderLookup(lookup: DbLookup, output: String) = {
-    assert(lookup, equalTo(dbLookup)) &&
-      assert(output,
+    assert(lookup)(equalTo(dbLookup)) &&
+      assert(output)(
         containsString(dbLookup.name) &&
           containsString(dbLookup.dbConRef.url)
       )
   }
 
   private def testDbConn(conn: DbConnection, output: String) = {
-    assert(conn, equalTo(dbConnection)) &&
-      assert(output,
+    assert(conn)(equalTo(dbConnection)) &&
+      assert(output)(
         containsString(dbConnection.name) &&
           containsString(dbConnection.url) &&
           containsString(dbConnection.user) &&
@@ -55,8 +53,8 @@ object ComponentsTests {
   }
 
   private def testMessageBundle(messageB: MessageBundle, output: String) = {
-    assert(messageB, equalTo(messageBundle)) &&
-      assert(output,
+    assert(messageB)(equalTo(messageBundle)) &&
+      assert(output)(
         containsString(messageBundle.name)
       )
   }

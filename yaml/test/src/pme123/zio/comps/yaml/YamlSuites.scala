@@ -5,7 +5,9 @@ import zio.test._
 
 
 object YamlSuites
-  extends DefaultRunnableSpec(
+  extends DefaultRunnableSpec {
+  def spec: ZSpec[_root_.zio.test.environment.TestEnvironment, Any] =
     suite("YamlSuites")(
       ComponentsTests.testSuites(new YamlComps)
-    ))
+    )
+}

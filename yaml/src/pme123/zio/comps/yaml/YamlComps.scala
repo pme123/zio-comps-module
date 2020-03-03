@@ -6,7 +6,7 @@ import io.circe.generic.auto._
 import io.circe.syntax._
 import io.circe.yaml.parser
 import io.circe.yaml.syntax._
-import pme123.zio.comps.core.Components.ComponentsEnv
+import pme123.zio.comps.core.components.{Components, ComponentsEnv}
 import pme123.zio.comps.core.{Component, _}
 import zio.console.Console
 import zio.{RIO, Task, ZIO, console}
@@ -14,7 +14,7 @@ import zio.{RIO, Task, ZIO, console}
 import scala.io.{Codec, Source}
 import scala.reflect.ClassTag
 
-class YamlComps extends Components.Service[ComponentsEnv] {
+class YamlComps extends Components.Service {
 
   def load[T <: Component : ClassTag](ref: CompRef): RIO[ComponentsEnv, T] = {
     loadYaml[Component](ref).map { case c: T => c }
