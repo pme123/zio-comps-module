@@ -9,22 +9,14 @@ import zio.test.environment.TestConsole
 
 object ComponentsTests {
 
-
-  def env(service: Components.Service) =
-
-   environment.testEnvironment ++  Components.live(service)
-
-
   //noinspection TypeAnnotation
   def testSuites(service: Components.Service) =
     suite("Run Program")(
       testM("the Configs are correct") {
         for {
-
           r <- CompApp.flow
           (lookup, conn, messageB) = r
           consoleData <- TestConsole.output
-
           consoleOut = consoleData.filter(_.startsWith(renderOutputPrefix))
         } yield
           assert(consoleOut.length)( equalTo(3)) &&
@@ -32,7 +24,7 @@ object ComponentsTests {
             testDbConn(conn, consoleOut(1)) &&
             testMessageBundle(messageB, consoleOut.last)
       }
-    ).provideLayer(env(service))
+    ).provideCustomLayer(Components.live(service))
 
   private def testRenderLookup(lookup: DbLookup, output: String) = {
     assert(lookup)(equalTo(dbLookup)) &&
