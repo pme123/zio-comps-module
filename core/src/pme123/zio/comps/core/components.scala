@@ -1,7 +1,7 @@
 package pme123.zio.comps.core
 
 import zio.console.Console
-import zio.{Has, RIO, UIO, ZIO, ZLayer, console}
+import zio._
 
 import scala.reflect.ClassTag
 

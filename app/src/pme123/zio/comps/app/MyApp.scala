@@ -6,7 +6,6 @@ import pme123.zio.comps.core.components.Components
 import pureconfig.ConfigSource
 import pureconfig.generic.auto._
 import zio._
-import zio.console.Console
 
 object MyApp extends CompApp {
 
@@ -14,8 +13,8 @@ object MyApp extends CompApp {
     (for {
       myConfig <- config()
       service <- wire[Components.Service](myConfig.compsImpl)
-      run <- program.provideLayer(
-        Console.live ++ Components.live(service)
+      run <- program.provideCustomLayer(
+       Components.live(service)
       )
     } yield run)
       .catchAll { t =>
