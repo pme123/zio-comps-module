@@ -8,3 +8,7 @@
 /.vscode/
 /mill.AbAJ
 *.iml
+project/.bloop/
+project/project/
+*/target/
+/target/

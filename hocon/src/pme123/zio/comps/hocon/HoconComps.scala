@@ -11,24 +11,29 @@ import scala.reflect.ClassTag
 
 class HoconComps extends Components.Service {
 
-  def load[T <: Component : ClassTag](ref: CompRef): RIO[ComponentsEnv, T] =
-    loadConf[Component](ref).map { case c: T => c }
+  def load[T <: Component: ClassTag](ref: CompRef): RIO[ComponentsEnv, T] =
+    loadConf[Component](ref)
+      .map {
+        _.asInstanceOf[T]
+      }
 
   def render(component: Component): RIO[ComponentsEnv, String] =
     renderConf(component)
 
-  private def loadConf[T <: Component : ConfigReader : ClassTag](
-                                                                  ref: CompRef
-                                                                ): RIO[Console, T] = {
+  private def loadConf[T <: Component: ConfigReader: ClassTag](
+      ref: CompRef
+  ): RIO[Console, T] = {
     for {
-      component <- Task.effect(ConfigSource.resources(s"${ref.url}.conf").loadOrThrow[T])
+      component <- Task.effect(
+        ConfigSource.resources(s"${ref.url}.conf").loadOrThrow[T]
+      )
       _ <- console.putStrLn(s"\nComponent:\n$component")
     } yield component
   }
 
   private def renderConf(
-                          component: Component
-                        ): RIO[Console, String] =
+      component: Component
+  ): RIO[Console, String] =
     for {
       configValue <- ZIO.effectTotal(ConfigWriter[Component].to(component))
       configString <- ZIO.effectTotal(configValue.render())

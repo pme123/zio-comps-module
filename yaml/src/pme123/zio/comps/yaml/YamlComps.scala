@@ -16,13 +16,15 @@ import scala.reflect.ClassTag
 
 class YamlComps extends Components.Service {
 
-  def load[T <: Component : ClassTag](ref: CompRef): RIO[ComponentsEnv, T] = {
-    loadYaml[Component](ref).map { case c: T => c }
+  def load[T <: Component: ClassTag](ref: CompRef): RIO[ComponentsEnv, T] = {
+    loadYaml[Component](ref)
+      .map {
+        _.asInstanceOf[T]
+      }
   }
 
   def render(component: Component): RIO[ComponentsEnv, String] =
     renderYaml(component)
-
 
   implicit val componentDecoder: Decoder[Component] =
     List[Decoder[Component]](
@@ -40,9 +42,13 @@ class YamlComps extends Components.Service {
       Decoder[RemoteRef].widen
     ).reduceLeft(_ or _)
 
-  private def loadYaml[T <: Component : Decoder](ref: CompRef): RIO[Console, T] = {
+  private def loadYaml[T <: Component: Decoder](
+      ref: CompRef
+  ): RIO[Console, T] = {
     for {
-      yamlString <- Task.effect(Source.fromResource(s"${ref.url}.yaml")(Codec.UTF8).mkString)
+      yamlString <- Task.effect(
+        Source.fromResource(s"${ref.url}.yaml")(Codec.UTF8).mkString
+      )
       json <- Task.fromEither(parser.parse(yamlString))
       _ <- console.putStrLn(s"\nJSON:\n$json")
       comp = json.as[T]
@@ -52,8 +58,8 @@ class YamlComps extends Components.Service {
   }
 
   private def renderYaml(
-                          component: Component
-                        ): RIO[Console, String] =
+      component: Component
+  ): RIO[Console, String] =
     for {
       json <- ZIO.effectTotal(component.asJson)
       configString <- ZIO.effectTotal(json.asYaml.spaces2)
@@ -61,5 +67,3 @@ class YamlComps extends Components.Service {
     } yield configString
 
 }
-
-
